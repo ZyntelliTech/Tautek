@@ -1,0 +1,22 @@
+identifier: tautek
+name: TAUTEK
+type: mcu
+arch: arm
+ram: 128
+flash: 512
+toolchain:
+  - zephyr
+  - gnuarmemb
+  - xtools
+supported:
+  - adc
+  - arduino_gpio
+  - arduino_i2c
+  - arduino_spi
+  - usb_device
+  - ble
+  - gpio
+  - pwm
+  - watchdog
+  - counter
+  - netif:openthread

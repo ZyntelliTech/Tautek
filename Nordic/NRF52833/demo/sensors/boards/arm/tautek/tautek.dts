@@ -1,0 +1,183 @@
+/*
+ * Copyright (c) 2019 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/dts-v1/;
+#include <nordic/nrf52833_qiaa.dtsi>
+#include "tautek-pinctrl.dtsi"
+#include <freq.h>
+
+/ {
+	model = "Nordic nRF52833 DK NRF52833";
+	compatible = "nordic,nrf52833-dk-nrf52833";
+
+	chosen {
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+		zephyr,uart-mcumgr = &uart0;
+		zephyr,bt-mon-uart = &uart0;
+		zephyr,bt-c2h-uart = &uart0;
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+		zephyr,ieee802154 = &ieee802154;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		red_led: red_led {
+			gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
+			label = "RED LED 0";
+		};
+		blue_led: blue_led {
+			gpios = <&gpio0 14 GPIO_ACTIVE_LOW>;
+			label = "BLUE LED 1";
+		};
+		green_led: green_led {
+			gpios = <&gpio0 15 GPIO_ACTIVE_LOW>;
+			label = "GREEN LED 2";
+		};
+		dout1: dout_1 {
+			gpios = <&gpio0 20 GPIO_ACTIVE_LOW>;
+			label = "digital out 1";
+		};
+		dout2: dout_2 {
+			gpios = <&gpio0 22 GPIO_ACTIVE_LOW>;
+			label = "digital out 2";
+		};
+		dout3: dout_3 {
+			gpios = <&gpio0 24 GPIO_ACTIVE_LOW>;
+			label = "digital out 3";
+		};
+		readbat: read_bat {
+			gpios = <&gpio0 15 GPIO_ACTIVE_LOW>;
+			label = "enable reading battery";
+		};
+	};
+
+	buttons {
+		compatible = "gpio-keys";
+		din: din {
+			gpios = <&gpio0 17 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "digital input";
+		};
+	};
+	/* These aliases are provided for compatibility with samples */
+	aliases {
+		redled = &red_led;
+		blueled = &blue_led;
+		greenled = &green_led;
+		din = &din;
+		dout1 = &dout1;
+		dout2 = &dout2;
+		dout3 = &dout3;
+		readbat = &readbat;
+		bootloader-led0 = &red_led;
+		mcuboot-button0 = &din;
+		mcuboot-led0 = &red_led;
+		watchdog0 = &wdt0;
+	};
+};
+
+&adc {
+	status = "okay";
+};
+
+&gpiote {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&uart0 {
+	compatible = "nordic,nrf-uarte";
+	status = "okay";
+	current-speed = <115200>;
+	pinctrl-0 = <&uart0_default>;
+	pinctrl-1 = <&uart0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&uart1 {
+	current-speed = <115200>;
+	pinctrl-0 = <&uart1_default>;
+	pinctrl-1 = <&uart1_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&i2c0 {
+	compatible = "nordic,nrf-twi";
+	status = "okay";
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-1 = <&i2c0_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	bme680@76 {
+		compatible = "bosch,bme680";
+		reg = <0x76>;
+	};
+	lis3mdl@1c {
+		compatible = "st,lis3mdl-magn";
+		reg = <0x1c>;
+	};
+};
+
+&i2c1 {
+	compatible = "nordic,nrf-twi";
+	/* Cannot be used together with spi1. */
+	/* status = "okay"; */
+	pinctrl-0 = <&i2c1_default>;
+	pinctrl-1 = <&i2c1_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&spi1 {
+	compatible = "nordic,nrf-spi";
+	status = "okay";
+	pinctrl-0 = <&spi1_default>;
+	pinctrl-1 = <&spi1_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&ieee802154 {
+	status = "okay";
+};
+
+&flash0 {
+
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x00000000 0xC000>;
+		};
+		slot0_partition: partition@c000 {
+			label = "image-0";
+			reg = <0x0000C000 0x37000>;
+		};
+		slot1_partition: partition@43000 {
+			label = "image-1";
+			reg = <0x00043000 0x37000>;
+		};
+		storage_partition: partition@7a000 {
+			label = "storage";
+			reg = <0x0007A000 0x00006000>;
+		};
+	};
+};
+
+zephyr_udc0: &usbd {
+	compatible = "nordic,nrf-usbd";
+	status = "okay";
+};
